@@ -2,6 +2,11 @@ import React from 'react';
 import { withContentRect } from 'react-measure';
 import * as d3 from 'd3';
 import withTheme from '@material-ui/core/styles/withTheme';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Slider from '@material-ui/lab/Slider';
+
+import { significantFigures } from 'ot-ui';
 
 import withTooltip from '../common/withTooltip';
 import TooltipContent from './ClassicAssociationsTooltip';
@@ -95,13 +100,15 @@ const getTherapeuticAreaTree = ({ ensgId, symbol, data, efo, diameter }) => {
 };
 
 class ClassicAssociationsBubbles extends React.Component {
-  state = {};
+  state = { scoreThreshold: 0.1 };
   svgContainer = React.createRef();
   static getDerivedStateFromProps(props) {
     const { width = 600 } = props.contentRect.bounds;
     return { width };
   }
-
+  handleScoreThresholdChange = scoreThreshold => {
+    this.setState({ scoreThreshold });
+  };
   render() {
     const {
       measureRef,
@@ -112,14 +119,16 @@ class ClassicAssociationsBubbles extends React.Component {
       efo,
       handleMouseover,
     } = this.props;
-    const { width } = this.state;
+    const { width, scoreThreshold } = this.state;
     const height = 800;
     const diameter = Math.min(width, height); // TODO: replace 600 with eg page height / 2
 
+    // create tree
+    const dataFiltered = data.filter(d => d.score >= scoreThreshold);
     const therapeuticAreaTree = getTherapeuticAreaTree({
       ensgId,
       symbol,
-      data,
+      data: dataFiltered,
       efo,
       diameter,
     });
@@ -133,6 +142,23 @@ class ClassicAssociationsBubbles extends React.Component {
 
     return (
       <div ref={measureRef}>
+        <Grid container>
+          <Grid item xs={12} sm={6}>
+            <Typography>
+              Minimum score threshold: {significantFigures(scoreThreshold)}
+            </Typography>
+            <Slider
+              style={{ padding: '10px 0' }}
+              value={scoreThreshold}
+              step={0.01}
+              min={0}
+              max={1}
+              onChange={(event, value) =>
+                this.handleScoreThresholdChange(value)
+              }
+            />
+          </Grid>
+        </Grid>
         <div ref={this.svgContainer}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
