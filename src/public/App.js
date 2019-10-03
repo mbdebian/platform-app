@@ -18,7 +18,7 @@ const EvidencePage = lazy(() => import('./evidence/Page'));
 
 const client = new ApolloClient({
   link: new HttpLink({
-    uri: 'https://platform-api.now.sh/graphql',
+    uri: 'https://platform-api-efo3.now.sh/graphql',
   }),
   cache: new InMemoryCache(),
 });
