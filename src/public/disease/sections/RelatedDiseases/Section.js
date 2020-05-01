@@ -9,7 +9,7 @@ const columns = (name, maxCountAOrB) => [
     id: 'B.name',
     label: 'Related disease',
     orderable: false,
-    renderCell: d => <Link to={`/target/${d.B.id}`}>{d.B.name}</Link>,
+    renderCell: d => <Link to={`/disease/${d.B.id}`}>{d.B.name}</Link>,
     comparator: (a, b) => (a.B.name <= b.B.name ? -1 : 1),
   },
   {
@@ -61,13 +61,16 @@ const Section = ({ data, name, fetchMore }) => {
   const onPageSort = pe => pe.page !== undefined && setPageIndex(pe.page);
   const pageSize = 10;
 
-  useEffect(() => {
-    fetchMore({
-      variables: { index: pageIndex, size: pageSize },
-      updateQuery: (prev, { fetchMoreResult }) =>
-        !fetchMoreResult ? prev : { ...prev, ...fetchMoreResult },
-    });
-  }, [pageIndex]);
+  useEffect(
+    () => {
+      fetchMore({
+        variables: { index: pageIndex, size: pageSize },
+        updateQuery: (prev, { fetchMoreResult }) =>
+          !fetchMoreResult ? prev : { ...prev, ...fetchMoreResult },
+      });
+    },
+    [fetchMore, pageIndex]
+  );
 
   const rowsMapped = rows.map(d => ({
     ...d,
