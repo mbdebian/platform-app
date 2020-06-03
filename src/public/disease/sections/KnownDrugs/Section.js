@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Chip, Tooltip } from '@material-ui/core';
+import _ from 'lodash';
 
 import { Link } from 'ot-ui';
 
@@ -7,6 +9,7 @@ import useBatchDownloader from '../../../../hooks/useBatchDownloader';
 import { clinicalTrialsSearchUrl } from '../../../configuration';
 import { label } from '../../../../utils/global';
 import { sectionQuery } from '.';
+import SourceChip from './SourceChip';
 
 const columnPool = {
   clinicalTrialsColumns: {
@@ -27,18 +30,15 @@ const columnPool = {
         renderCell: d => label(d.status),
       },
       {
-        id: 'ctIds',
-        label: 'Source',
+        id: 'urls',
+        label: 'Sources',
         filterValue: false,
         renderCell: d => {
-          const ctSearchUrl = new URL(clinicalTrialsSearchUrl);
-          ctSearchUrl.searchParams.append('term', d.ctIds.join(' OR '));
+          const sourceGroups = _.groupBy(d.urls, 'name');
 
-          return (
-            <Link external to={ctSearchUrl.href}>
-              Clinical trials
-            </Link>
-          );
+          return Object.keys(sourceGroups).map((source, i) => (
+            <SourceChip key={i} caption={source} items={sourceGroups[source]} />
+          ));
         },
       },
     ],
